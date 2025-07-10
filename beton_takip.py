@@ -14,8 +14,18 @@ paths = {
     "alis": os.path.join(veri_klasoru, "alislar.xlsx"),
     "urun": os.path.join(veri_klasoru, "urunler.xlsx"),
     "uretim": os.path.join(veri_klasoru, "uretimler.xlsx"),
-    "satis": os.path.join(veri_klasoru, "satislar.xlsx")
+    "satis": os.path.join(veri_klasoru, "satislar.xlsx"),
+    "tas_gelir_gider": os.path.join(veri_klasoru, "tas_gelir_gider.xlsx"),
+    "beton_gelir_gider": os.path.join(veri_klasoru, "beton_gelir_gider.xlsx")
+
 }
+paths["tas_gelir_gider"] = os.path.join(veri_klasoru, "tas_gelir_gider.xlsx")
+paths["beton_gelir_gider"] = os.path.join(veri_klasoru, "beton_gelir_gider.xlsx")
+for key in ["tas_gelir_gider", "beton_gelir_gider"]:
+    if not os.path.exists(paths[key]):
+        pd.DataFrame(columns=[
+            "Tarih", "Tip", "Açıklama", "Birim", "Birim Fiyatı", "Miktar", "Toplam Tutar"
+        ]).to_excel(paths[key], index=False)
 
 for key, path in paths.items():
     if not os.path.exists(path):
@@ -266,6 +276,163 @@ tk.Label(f5, text="Sebep: ").grid(row=4, column=0)
 entry_iade_sebep = tk.Entry(f5)
 entry_iade_sebep.grid(row=4, column=1)
 tk.Button(f5, text="Kaydet", command=iade_kaydet).grid(row=5, columnspan=2, pady=10)
+
+# === SADECE TAŞ GİDER TÜRLERİ ===
+tas_gider_turleri = [
+    "İŞÇİLİK SGK", "İŞÇİLİK MAAŞ", "İŞ GÜVENLİĞİ", "ÇEVRE DANIŞMANLIK FİRMASI",
+    "MADEN MÜHENDİSİ", "SORUMLU YTK", "ORMAN KİRA BEDELİ", "MAPEG KİRA BEDELİ",
+    "PATLATMA GİDERİ", "ELEKTRİK", "YEMEK", "MOTORİN", "TAMİR BAKIM  GİDERLERİ",
+    "YÖNETİM GİDERİ", "VERGİ", "DİĞER"
+]
+
+def tas_gider_kaydet():
+    try:
+        tarih = entry_tas_tarih.get()
+        tip = "Gider"  # sabit
+        aciklama = combo_tas_kategori.get()
+        birim = entry_tas_birim.get()
+        birim_fiyat = float(entry_tas_fiyat.get())
+        miktar = float(entry_tas_miktar.get())
+        toplam = birim_fiyat * miktar
+
+        df = pd.read_excel(paths["tas_gelir_gider"])
+        yeni = pd.DataFrame([[tarih, tip, aciklama, birim, birim_fiyat, miktar, toplam]], columns=df.columns)
+        df = pd.concat([df, yeni], ignore_index=True)
+        df.to_excel(paths["tas_gelir_gider"], index=False)
+
+        messagebox.showinfo("Başarılı", "Taş gideri kaydedildi.")
+        entry_tas_tarih.delete(0, tk.END)
+        combo_tas_kategori.set("")
+        entry_tas_birim.delete(0, tk.END)
+        entry_tas_fiyat.delete(0, tk.END)
+        entry_tas_miktar.delete(0, tk.END)
+    except Exception as e:
+        messagebox.showerror("Hata", str(e))
+
+f6 = ttk.Frame(notebook)
+notebook.add(f6, text="Taş Gider")
+tk.Label(f6, text="Tarih (YYYY-AA-GG):").grid(row=0, column=0)
+entry_tas_tarih = tk.Entry(f6)
+entry_tas_tarih.grid(row=0, column=1)
+tk.Label(f6, text="Gider Türü:").grid(row=1, column=0)
+combo_tas_kategori = ttk.Combobox(f6, values=tas_gider_turleri)
+combo_tas_kategori.grid(row=1, column=1)
+tk.Label(f6, text="Birim:").grid(row=2, column=0)
+entry_tas_birim = tk.Entry(f6)
+entry_tas_birim.grid(row=2, column=1)
+tk.Label(f6, text="Birim Fiyatı:").grid(row=3, column=0)
+entry_tas_fiyat = tk.Entry(f6)
+entry_tas_fiyat.grid(row=3, column=1)
+tk.Label(f6, text="Miktar:").grid(row=4, column=0)
+entry_tas_miktar = tk.Entry(f6)
+entry_tas_miktar.grid(row=4, column=1)
+tk.Button(f6, text="Kaydet", command=tas_gider_kaydet).grid(row=5, columnspan=2, pady=10)
+tk.Label(f6, text="TURKCE KARAKTER KULLANMAYIN!", fg="red").grid(row=6, columnspan=2, pady=(5, 5))
+
+# === SADECE BETON GİDER TÜRLERİ ===
+beton_gider_turleri = ["ÇİMENTO", "AGREGA", "KATKI"]
+
+def beton_gider_kaydet():
+    try:
+        tarih = entry_beton_tarih.get()
+        tip = "Gider"  # sabit
+        aciklama = combo_beton_kategori.get()
+        birim = entry_beton_birim.get()
+        birim_fiyat = float(entry_beton_fiyat.get())
+        miktar = float(entry_beton_miktar.get())
+        toplam = birim_fiyat * miktar
+
+        df = pd.read_excel(paths["beton_gelir_gider"])
+        yeni = pd.DataFrame([[tarih, tip, aciklama, birim, birim_fiyat, miktar, toplam]], columns=df.columns)
+        df = pd.concat([df, yeni], ignore_index=True)
+        df.to_excel(paths["beton_gelir_gider"], index=False)
+
+        messagebox.showinfo("Başarılı", "Beton gideri kaydedildi.")
+        entry_beton_tarih.delete(0, tk.END)
+        combo_beton_kategori.set("")
+        entry_beton_birim.delete(0, tk.END)
+        entry_beton_fiyat.delete(0, tk.END)
+        entry_beton_miktar.delete(0, tk.END)
+    except Exception as e:
+        messagebox.showerror("Hata", str(e))
+
+f7 = ttk.Frame(notebook)
+notebook.add(f7, text="Beton Gider")
+tk.Label(f7, text="Tarih (YYYY-AA-GG):").grid(row=0, column=0)
+entry_beton_tarih = tk.Entry(f7)
+entry_beton_tarih.grid(row=0, column=1)
+tk.Label(f7, text="Gider Türü:").grid(row=1, column=0)
+combo_beton_kategori = ttk.Combobox(f7, values=beton_gider_turleri)
+combo_beton_kategori.grid(row=1, column=1)
+tk.Label(f7, text="Birim:").grid(row=2, column=0)
+entry_beton_birim = tk.Entry(f7)
+entry_beton_birim.grid(row=2, column=1)
+tk.Label(f7, text="Birim Fiyatı:").grid(row=3, column=0)
+entry_beton_fiyat = tk.Entry(f7)
+entry_beton_fiyat.grid(row=3, column=1)
+tk.Label(f7, text="Miktar:").grid(row=4, column=0)
+entry_beton_miktar = tk.Entry(f7)
+entry_beton_miktar.grid(row=4, column=1)
+tk.Button(f7, text="Kaydet", command=beton_gider_kaydet).grid(row=5, columnspan=2, pady=10)
+tk.Label(f7, text="TURKCE KARAKTER KULLANMAYIN!", fg="red").grid(row=6, columnspan=2, pady=(5, 5))
+
+# === GÜNCELLENMİŞ RAPORLAMA SEKMESİ ===
+def raporla():
+    try:
+        secim = combo_rapor_tipi.get()
+
+        def to_date(x):
+            return pd.to_datetime(x, errors="coerce")
+
+        # Verileri oku ve tarihleri düzelt
+        satis = pd.read_excel(paths["satis"])
+        uretim = pd.read_excel(paths["uretim"])
+        tas = pd.read_excel(paths["tas_gelir_gider"])
+        beton = pd.read_excel(paths["beton_gelir_gider"])
+
+        for df in [satis, uretim, tas, beton]:
+            df["Tarih"] = to_date(df["Tarih"])
+
+        if secim == "Günlük":
+            satis_group = satis.groupby(satis["Tarih"].dt.date)["NetKar"].sum().rename("Satış Kârı")
+            tas_group = tas.groupby(tas["Tarih"].dt.date)["Toplam Tutar"].apply(
+                lambda x: x.sum() if (tas.loc[x.index, "Tip"] == "Gelir").all() else -x.sum()
+            ).rename("Taş Gelir-Gider")
+            beton_group = beton.groupby(beton["Tarih"].dt.date)["Toplam Tutar"].apply(
+                lambda x: x.sum() if (beton.loc[x.index, "Tip"] == "Gelir").all() else -x.sum()
+            ).rename("Beton Gelir-Gider")
+        else:
+            satis_group = satis.groupby(satis["Tarih"].dt.to_period("M"))["NetKar"].sum().rename("Satış Kârı")
+            tas_group = tas.groupby(tas["Tarih"].dt.to_period("M"))["Toplam Tutar"].apply(
+                lambda x: x.sum() if (tas.loc[x.index, "Tip"] == "Gelir").all() else -x.sum()
+            ).rename("Taş Gelir-Gider")
+            beton_group = beton.groupby(beton["Tarih"].dt.to_period("M"))["Toplam Tutar"].apply(
+                lambda x: x.sum() if (beton.loc[x.index, "Tip"] == "Gelir").all() else -x.sum()
+            ).rename("Beton Gelir-Gider")
+
+        # Raporu birleştir
+        rapor = pd.concat([satis_group, tas_group, beton_group], axis=1).fillna(0)
+        rapor["Toplam Kâr/Zarar"] = rapor.sum(axis=1)
+
+        # Göster
+        liste_rapor.delete(0, tk.END)
+        for tarih, row in rapor.iterrows():
+            liste_rapor.insert(tk.END, f"{tarih} ➤ Net: {row['Toplam Kâr/Zarar']:.2f} ₺")
+
+    except Exception as e:
+        messagebox.showerror("Hata", str(e))
+
+f8 = ttk.Frame(notebook)
+notebook.add(f8, text="Raporlama")
+tk.Label(f8, text="Rapor Tipi:").pack(pady=(10, 0))
+combo_rapor_tipi = ttk.Combobox(f8, values=["Günlük", "Aylık"])
+combo_rapor_tipi.set("Günlük")
+combo_rapor_tipi.pack()
+tk.Button(f8, text="Raporu Oluştur", command=raporla).pack(pady=5)
+liste_rapor = tk.Listbox(f8, width=60)
+liste_rapor.pack()
+tk.Label(f8, text="TURKCE KARAKTER KULLANMAYIN!", fg="red").pack(pady=(10, 5))
+
 
 
 # === Program Başlat ===
