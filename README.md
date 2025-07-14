@@ -9,7 +9,7 @@ This is a Python-based desktop application developed using Tkinter to help a con
 - **Automated Stock Reduction**: Raw materials are automatically deducted based on production formulas during production entries.
 - **Sales Recording**: Record each sale with product, quantity, and date information.
 - **Excel Integration**: Save and update sales, stock, and production data in Excel format for easy access and editing.
-- **Profit Calculation**: Automatically calculates net profit by subtracting raw material costs and applying 20% VAT and 21% platform commission.
+- **Profit Calculation**: Automatically calculates net profit by subtracting raw material costs and applying 20% VAT.
 - **Scrap and Return Tracking**: Log returned or defective products separately.
 - **Separate Income and Expense Tracking**: Maintain independent records for quarry and concrete business units.
 - **Input Validation**: Warns users when Turkish characters are used in restricted input fields.
