@@ -166,8 +166,13 @@ def uretim_yap():
 f3 = ttk.Frame(notebook)
 notebook.add(f3, text="Üretim")
 tk.Label(f3, text="Ürün: ").grid(row=0, column=0)
-entry_uretim_urun = tk.Entry(f3)
-entry_uretim_urun.grid(row=0, column=1)
+# Ürün adlarını urunler.xlsx dosyasından oku
+urun_df = pd.read_excel(paths["urun"])
+urun_isimleri = sorted(urun_df["Urun"].dropna().unique())  # tekrarları ve boşları ayıkla
+
+combo_uretim_urun = ttk.Combobox(f3, values=urun_isimleri, state="readonly")
+combo_uretim_urun.grid(row=0, column=1)
+
 tk.Label(f3, text="Gramaj (kg): ").grid(row=1, column=0)
 entry_uretim_gramaj = tk.Entry(f3)
 entry_uretim_gramaj.grid(row=1, column=1)
